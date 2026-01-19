@@ -10,64 +10,82 @@
 
     <style>
         /* =========================================
-           0. 全域重置與 iframe 防溢出設定
+           0. 全域重置
            ========================================= */
-        /* 關鍵：讓所有元素的寬度計算包含 padding 與 border */
+        :root {
+            --gap-size: 16px;
+            --gap-mobile: 8px;
+        }
+
         *, *::before, *::after {
             box-sizing: border-box;
         }
 
         html, body {
-            overflow-x: hidden !important; /* 強制隱藏橫向溢出 */
-            width: 100% !important;
+            overflow-x: hidden !important;
+            width: 100% !important; /* 修正：iframe 中避免使用 100vw */
             margin: 0 !important;
             padding: 0 !important;
-            background-color: #f8f9fa; /* 背景色 */
+            background-color: #f8f9fa;
+            -webkit-overflow-scrolling: touch; /* iOS 滾動優化 */
         }
 
-        /* 外層容器：給予適當的內距，讓內容不要貼邊 */
         .page-wrapper {
             padding: 20px;
             width: 100%;
-            max-width: 100vw;
         }
 
         /* =========================================
-           1. 佈局系統 (Grid Layout)
+           1. 進階 Grid 佈局系統
            ========================================= */
-        /* 針對 HTML 中的 .row-cols-10 進行強制 Grid 設定 */
         .row-cols-10 {
             display: grid !important;
-            grid-template-columns: repeat(5, 1fr) !important; /* 電腦版：5 欄 */
-            gap: 20px !important; /* 卡片間距 (修正為 20px 較為適中) */
+            /* Desktop: 5 欄 */
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: var(--gap-size) !important;
             width: 100%;
-            max-width: 1200px; /* 限制最大寬度，避免在大螢幕太散 */
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* 手機版響應式 (螢幕小於 768px)：3 欄 */
+        /* Tablet (< 992px): 4 欄 */
+        @media (max-width: 992px) {
+            .row-cols-10 {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+        }
+
+        /* Mobile (< 768px): 3 欄 - 這是原本容易溢出的區段 */
         @media (max-width: 768px) {
             .page-wrapper {
-                padding: 10px; /* 手機版縮小外邊距 */
+                padding: 10px;
             }
             .row-cols-10 {
                 grid-template-columns: repeat(3, 1fr) !important;
-                gap: 8px !important; /* 手機版間距 */
+                gap: var(--gap-mobile) !important;
+            }
+        }
+
+        /* Small Mobile (< 380px): 2 欄 - 避免 iPhone SE/Fold 等極窄螢幕溢出 */
+        @media (max-width: 380px) {
+            .row-cols-10 {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
         }
 
         /* =========================================
-           2. 色卡卡片本體 (Card Body)
+           2. 卡片組件 (Card Component)
            ========================================= */
         .selectable-color {
-            /* 強制覆蓋 HTML inline style 的 width: 120px */
+            /* 關鍵：強制覆寫 HTML 中的 inline style width: 120px */
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 0 !important; /* 防止 Grid Item 被內容撐開 */
             
             background-color: #fff;
             border: 1px solid #eaeaea !important;
             border-radius: 8px !important;
-            padding: 8px !important; /* 稍微縮小內距讓畫面更精緻 */
+            padding: 8px !important;
             
             display: flex;
             flex-direction: column;
@@ -75,12 +93,11 @@
             align-items: center;
             
             position: relative;
-            transition: all 0.2s ease-out;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.2s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            height: 100%; /* 確保同列高度一致 */
+            height: 100%;
         }
 
-        /* Hover 互動效果 */
         .selectable-color:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
@@ -88,35 +105,30 @@
             z-index: 2;
         }
 
-        /* 禁用連結點擊 */
         .selectable-color a {
-            pointer-events: none !important;
+            pointer-events: none !important; /* Cyberbiz 產品展示通常不希望跳轉 */
             text-decoration: none !important;
             color: inherit !important;
             width: 100%;
         }
 
         /* =========================================
-           3. 色磚圖片 (Swatch Image)
+           3. 響應式圖片 (Responsive Images)
            ========================================= */
-        /* 修正圖片容器與圖片本身，強制長方形 */
+        /* 容器與圖片強制響應 */
         .selectable-color .masstone-placeholder,
         .selectable-color .masstone-placeholder img {
-            border-radius: 4px !important; 
+            /* 關鍵：強制覆寫 HTML 中的 width:100px height:100px */
             width: 100% !important;
-            height: 60px !important; /* 固定高度 */
+            height: auto !important;
+            aspect-ratio: 1 / 1; /* 保持正方形 */
+            
+            border-radius: 4px !important;
             object-fit: cover;
             display: block;
-            transition: transform 0.3s ease;
-            background-color: #f0f0f0;
+            margin: 0 auto;
         }
 
-        /* Hover 時圖片微放大效果 */
-        .selectable-color:hover .masstone-placeholder img {
-            transform: scale(1.05);
-        }
-
-        /* 修正圖片外層 div 的對齊 */
         .selectable-color div[data-swatch-type="masstone"] {
             width: 100%;
             display: flex;
@@ -125,7 +137,7 @@
         }
 
         /* =========================================
-           4. 文字排版 (Typography)
+           4. 文字排版優化
            ========================================= */
         .text-small-black {
             width: 100%;
@@ -133,16 +145,17 @@
             margin-top: 0 !important;
         }
 
-        /* 顏料編號 (Paint Code) */
         .paint-code {
             display: block;
-            font-family: monospace, sans-serif;
+            font-family: 'SF Mono', 'Menlo', Monaco, Consolas, monospace;
             font-size: 0.7rem;
             color: #999;
             margin-bottom: 2px;
+            white-space: nowrap; /* 防止編號換行 */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* 顏色名稱 (Color Name) */
         .selectable-color strong {
             display: block;
             font-size: 0.8rem;
@@ -151,36 +164,39 @@
             line-height: 1.3;
             margin-bottom: 6px;
             
-            /* 限制顯示兩行 */
+            /* 文字截斷 - 2行 */
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            min-height: 2.6em; 
+            height: 2.6em; 
         }
 
-        /* 色素成分 (Pigments) */
         .pigments {
-            display: inline-block;
+            display: block;
             margin-top: auto;
         }
 
         .pigments small {
-            background-color: #f8f9fa;
+            background-color: #f1f3f5;
             color: #666;
-            border: 1px solid #eee;
-            padding: 2px 6px;
+            border: 1px solid #dee2e6;
+            padding: 2px 4px;
             border-radius: 4px;
             font-size: 0.65rem;
             font-weight: 500;
+            
+            /* 如果成分太長，自動截斷 */
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
+            vertical-align: middle;
         }
 
-        /* =========================================
-           5. 隱藏不必要的元素
-           ========================================= */
+        /* 隱藏元素 */
         .gamut-warning, 
-        .text-danger,
         .tooltip-initialized,
         .text-end[data-controller="components--color-out-of-gamut"] {
             display: none !important;
@@ -188,7 +204,6 @@
     </style>
 </head>
 <body>
-
 <div class="row row-cols-10 row-cols-md-10 g-4 mt-2" data-controller="lazy" data-sort-container="brand">
     <div class="col p-1 pt-3 m-0 selectable-color" data-paint-id="7t3vg">
         </div>
