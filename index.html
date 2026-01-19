@@ -146,14 +146,19 @@
         }
 
         .paint-code {
-            display: block;
-            font-family: 'SF Mono', 'Menlo', Monaco, Consolas, monospace;
-            font-size: 0.7rem;
-            color: #999;
-            margin-bottom: 2px;
-            white-space: nowrap; /* 防止編號換行 */
-            overflow: hidden;
-            text-overflow: ellipsis;
+        display: inline-block; /* 讓背景色包覆更完整 */
+        font-family: 'SF Mono', 'Menlo', Monaco, Consolas, monospace;
+        
+        /* 視覺強調設定 */
+        font-size: 1.1rem !important; /* 放大字體 (原為 0.7rem) */
+        font-weight: 800 !important;  /* 極粗體 */
+        color: rgb(0, 0, 0) !important;    /* 使用洋紅色或深紅色強調 (可改 #c00) */
+        background-color: #cfcfcf;    /* 加上淡淡的粉紅底色襯托 */
+        
+        padding: 2px 6px;             /* 增加內距讓它像個標籤 */
+        border-radius: 4px;           /* 圓角 */
+        margin-bottom: 4px;           /* 增加下方距離 */
+        letter-spacing: 0.5px;        /* 增加字距提升辨識度 */
         }
 
         .selectable-color strong {
@@ -2123,7 +2128,43 @@
             link.style.textDecoration = 'none';
         });
     });
+    document.addEventListener("DOMContentLoaded", () => {
+        // ==========================================
+        // 任務 1: 處理色號 (只顯示逗號後面的代碼)
+        // ==========================================
+        const codeSpans = document.querySelectorAll('.paint-code');
+        
+        codeSpans.forEach(span => {
+            const originalText = span.innerText;
+            
+            // 檢查是否有逗號 (例如 "W010, W210")
+            if (originalText.includes(',')) {
+                // split(',') 切割成陣列 -> pop() 取最後一個 -> trim() 去除空白
+                const newText = originalText.split(',').pop().trim();
+                span.innerText = newText;
+            }
+        });
+
+        // ==========================================
+        // 任務 2: 移除手機版連結跳轉
+        // ==========================================
+        const links = document.querySelectorAll('.selectable-color a');
+        
+        if (links.length > 0) {
+            links.forEach(link => {
+                link.removeAttribute('href'); // 移除 href 屬性
+                
+                // 強制阻擋點擊
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+            console.log('已優化顯示格式：色號簡化 + 連結移除');
+        }
+    });
 </script>
 
 </body>
 </html>
+
