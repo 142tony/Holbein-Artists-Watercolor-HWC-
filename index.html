@@ -2102,3 +2102,28 @@
 
 
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. 選取所有的卡片內的連結
+        const links = document.querySelectorAll('.selectable-color a');
+
+        links.forEach(function(link) {
+            // 方法 A: 直接移除 href 屬性 (最徹底，讓它變成單純的文字容器)
+            link.removeAttribute('href');
+            
+            // 方法 B: 強制監聽點擊事件並禁止預設行為 (雙重保險)
+            link.addEventListener('click', function(e) {
+                e.preventDefault(); // 阻止跳轉
+                e.stopPropagation(); // 阻止事件冒泡
+                return false;
+            });
+
+            // 方法 C: 確保游標樣式正確
+            link.style.cursor = 'default';
+            link.style.textDecoration = 'none';
+        });
+    });
+</script>
+
+</body>
+</html>
