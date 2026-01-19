@@ -6,175 +6,188 @@
     <title>Holbein 水彩專色色卡 (Holbein Artists' Watercolor)</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-      html, body {
-    overflow-x: hidden !important; /* 強制隱藏橫向溢出 */
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 確保容器不會被 padding 撐大 */
-    .color-grid-container, .container, .row-cols-10 {
-        width: 100% !important;
-        max-width: 100vw !important; /* 確保不超過視窗寬度 */
-        box-sizing: border-box !important;
-    }
-    /* =========================================
-       1. 佈局系統 (Grid Layout)
-       ========================================= */
-    /* 針對 HTML 中的 .row-cols-10 進行強制 Grid 設定 */
-    .row-cols-10 {
-        display: grid !important;
-        grid-template-columns: repeat(5, 1fr) !important; /* 電腦版：5 欄 */
-        gap: 35px !important; /* 卡片間距 */
-        padding: 16px 0;
-        width: 100%;
-        margin: 0 auto;
-    }
-
-    /* 手機版響應式 (螢幕小於 768px)：3 欄 */
-    @media (max-width: 768px) {
-        .row-cols-10 {
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 8px !important;
+        /* =========================================
+           0. 全域重置與 iframe 防溢出設定
+           ========================================= */
+        /* 關鍵：讓所有元素的寬度計算包含 padding 與 border */
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
-    }
 
-    /* =========================================
-       2. 色卡卡片本體 (Card Body)
-       ========================================= */
-    .selectable-color {
-        /* 強制覆蓋 HTML inline style 的 width: 120px */
-        width: 100% !important;
-        max-width: 100% !important;
-        
-        background-color: #fff;
-        border: 1px solid #eaeaea !important;
-        border-radius: 8px !important;
-        padding: 10px !important;
-        
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start; /* 內容從上排到下 */
-        align-items: center;
-        
-        position: relative;
-        transition: all 0.2s ease-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02); /* 極輕微的基礎陰影 */
-    }
+        html, body {
+            overflow-x: hidden !important; /* 強制隱藏橫向溢出 */
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #f8f9fa; /* 背景色 */
+        }
 
-    /* Hover 互動效果 */
-    .selectable-color:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.08);
-        border-color: #ccc !important;
-        z-index: 2;
-    }
+        /* 外層容器：給予適當的內距，讓內容不要貼邊 */
+        .page-wrapper {
+            padding: 20px;
+            width: 100%;
+            max-width: 100vw;
+        }
 
-    /* 禁用連結點擊 */
-    .selectable-color a {
-        pointer-events: none !important;
-        text-decoration: none !important;
-        color: inherit !important;
-        width: 100%;
-    }
+        /* =========================================
+           1. 佈局系統 (Grid Layout)
+           ========================================= */
+        /* 針對 HTML 中的 .row-cols-10 進行強制 Grid 設定 */
+        .row-cols-10 {
+            display: grid !important;
+            grid-template-columns: repeat(5, 1fr) !important; /* 電腦版：5 欄 */
+            gap: 20px !important; /* 卡片間距 (修正為 20px 較為適中) */
+            width: 100%;
+            max-width: 1200px; /* 限制最大寬度，避免在大螢幕太散 */
+            margin: 0 auto;
+        }
 
-    /* =========================================
-       3. 色磚圖片 (Swatch Image)
-       ========================================= */
-    /* 修正圖片容器與圖片本身，強制長方形 */
-    .selectable-color .masstone-placeholder,
-    .selectable-color .masstone-placeholder img {
-        border-radius: 4px !important; /* 微圓角 */
-        width: 100% !important;
-        height: 60px !important; /* 設定固定高度為長方形 */
-        object-fit: cover;
-        display: block;
-        transition: transform 0.3s ease;
-        background-color: #f0f0f0; /* 圖片載入前的底色 */
-    }
+        /* 手機版響應式 (螢幕小於 768px)：3 欄 */
+        @media (max-width: 768px) {
+            .page-wrapper {
+                padding: 10px; /* 手機版縮小外邊距 */
+            }
+            .row-cols-10 {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 8px !important; /* 手機版間距 */
+            }
+        }
 
-    /* Hover 時圖片微放大效果 */
-    .selectable-color:hover .masstone-placeholder img {
-        transform: scale(1.03);
-    }
+        /* =========================================
+           2. 色卡卡片本體 (Card Body)
+           ========================================= */
+        .selectable-color {
+            /* 強制覆蓋 HTML inline style 的 width: 120px */
+            width: 100% !important;
+            max-width: 100% !important;
+            
+            background-color: #fff;
+            border: 1px solid #eaeaea !important;
+            border-radius: 8px !important;
+            padding: 8px !important; /* 稍微縮小內距讓畫面更精緻 */
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            
+            position: relative;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            height: 100%; /* 確保同列高度一致 */
+        }
 
-    /* 修正圖片外層 div 的對齊 */
-    .selectable-color div[data-swatch-type="masstone"] {
-        width: 100%;
-        display: flex;
-        justify-content: center !important;
-        margin-bottom: 8px; /* 圖片與文字的距離 */
-    }
+        /* Hover 互動效果 */
+        .selectable-color:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #ccc !important;
+            z-index: 2;
+        }
 
-    /* =========================================
-       4. 文字排版 (Typography)
-       ========================================= */
-    
-    .text-small-black {
-        width: 100%;
-        text-align: center;
-        margin-top: 0 !important;
-    }
+        /* 禁用連結點擊 */
+        .selectable-color a {
+            pointer-events: none !important;
+            text-decoration: none !important;
+            color: inherit !important;
+            width: 100%;
+        }
 
-    /* 顏料編號 (Paint Code) */
-    .paint-code {
-        display: block;
-        font-family: monospace, sans-serif; /* 等寬字體更有編號感 */
-        font-size: 0.75rem;
-        color: #999;
-        margin-bottom: 2px;
-    }
+        /* =========================================
+           3. 色磚圖片 (Swatch Image)
+           ========================================= */
+        /* 修正圖片容器與圖片本身，強制長方形 */
+        .selectable-color .masstone-placeholder,
+        .selectable-color .masstone-placeholder img {
+            border-radius: 4px !important; 
+            width: 100% !important;
+            height: 60px !important; /* 固定高度 */
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+            background-color: #f0f0f0;
+        }
 
-    /* 顏色名稱 (Color Name) */
-    .selectable-color strong {
-        display: block;
-        font-size: 0.85rem;
-        color: #333;
-        font-weight: 700;
-        line-height: 1.25;
-        margin-bottom: 6px;
-        
-        /* 限制顯示兩行，超過省略 */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        min-height: 2.5em; /* 保持卡片高度一致 */
-    }
+        /* Hover 時圖片微放大效果 */
+        .selectable-color:hover .masstone-placeholder img {
+            transform: scale(1.05);
+        }
 
-    /* 色素成分 (Pigments) */
-    .pigments {
-        display: inline-block;
-        margin-top: auto;
-    }
+        /* 修正圖片外層 div 的對齊 */
+        .selectable-color div[data-swatch-type="masstone"] {
+            width: 100%;
+            display: flex;
+            justify-content: center !important;
+            margin-bottom: 8px;
+        }
 
-    .pigments small {
-        background-color: #f7f7f7;
-        color: #666;
-        border: 1px solid #eee;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        white-space: nowrap; /* 避免成份換行 */
-    }
+        /* =========================================
+           4. 文字排版 (Typography)
+           ========================================= */
+        .text-small-black {
+            width: 100%;
+            text-align: center;
+            margin-top: 0 !important;
+        }
 
-    /* =========================================
-       5. 隱藏不必要的元素
-       ========================================= */
-    .gamut-warning, 
-    .text-danger,
-    .tooltip-initialized,
-    .text-end[data-controller="components--color-out-of-gamut"] {
-        display: none !important;
-    }
-</style>
+        /* 顏料編號 (Paint Code) */
+        .paint-code {
+            display: block;
+            font-family: monospace, sans-serif;
+            font-size: 0.7rem;
+            color: #999;
+            margin-bottom: 2px;
+        }
+
+        /* 顏色名稱 (Color Name) */
+        .selectable-color strong {
+            display: block;
+            font-size: 0.8rem;
+            color: #333;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 6px;
+            
+            /* 限制顯示兩行 */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.6em; 
+        }
+
+        /* 色素成分 (Pigments) */
+        .pigments {
+            display: inline-block;
+            margin-top: auto;
+        }
+
+        .pigments small {
+            background-color: #f8f9fa;
+            color: #666;
+            border: 1px solid #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* =========================================
+           5. 隱藏不必要的元素
+           ========================================= */
+        .gamut-warning, 
+        .text-danger,
+        .tooltip-initialized,
+        .text-end[data-controller="components--color-out-of-gamut"] {
+            display: none !important;
+        }
+    </style>
 </head>
+<body>
 
 <div class="row row-cols-10 row-cols-md-10 g-4 mt-2" data-controller="lazy" data-sort-container="brand">
     <div class="col p-1 pt-3 m-0 selectable-color" data-paint-id="7t3vg">
